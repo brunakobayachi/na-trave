@@ -1,11 +1,26 @@
 {
-  "name": "api",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Bruna Kobayachi <brunakobayachi@gmail.com>",
-  "license": "ISC"
+    "name": "api",
+    "version": "0.0.0",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {},
+    "prisma": {
+        "seed": "node prisma/seed.js"
+    },
+    "author": {
+        "name": "Bruna Kobayachi",
+        "email": "brunakobayachi@gmail.com"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "@koa/cors": "^4.0.0",
+        "@koa/router": "^12.0.0",
+        "@prisma/client": "^4.4.0",
+        "date-fns": "^2.29.3",
+        "koa": "^2.13.4",
+        "koa-bodyparser": "^4.3.0"
+    },
+    "devDependencies": {
+        "prisma": "^4.4.0"
+    }
 }
