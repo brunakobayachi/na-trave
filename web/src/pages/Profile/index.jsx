@@ -6,30 +6,31 @@ import { format, formatISO } from "date-fns";
 import { useEffect } from "react";
 import { useState } from "react";
 
-
 export const Profile = () => {
     const params = useParams();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [currentDate, setDate] = useState(formatISO(new Date(2022, 10, 20)));
     const [auth, setAuth] = useLocalStorage("auth", {});
 
-    const [{}, fetchHunches] = useAsyncFn(async () => {
-        const res = await axios({
-            method: "get",
-            baseURL: import.meta.env.VITE_API_URL,
-            url: `/${params.username}`,
-        });
+    const [{ value: user, loading, error }, fetchHunches] = useAsyncFn(
+        async () => {
+            const res = await axios({
+                method: "get",
+                baseURL: import.meta.env.VITE_API_URL,
+                url: `/${params.username}`,
+            });
 
-        const hunches = res.data.hunches.reduce((acc, hunch) => {
-            acc[hunch.gameId] = hunch;
-            return acc;
-        }, {});
+            const hunches = res.data.hunches.reduce((acc, hunch) => {
+                acc[hunch.gameId] = hunch;
+                return acc;
+            }, {});
 
-        return {
-            ...res.data,
-            hunches,
-        };
-    });
+            return {
+                ...res.data,
+                hunches,
+            };
+        }
+    );
 
     const [games, fetchGames] = useAsyncFn(async params => {
         const res = await axios({
@@ -43,12 +44,12 @@ export const Profile = () => {
     });
 
     const logout = () => {
-        setAuth({})
-        navigate('/login')
-    }
+        setAuth({});
+        navigate("/login");
+    };
 
-    const isLoading = games.loading || user.loading;
-    const hasError = games.error || user.error;
+    const isLoading = games.loading || loading;
+    const hasError = games.error || error;
     const isDone = !isLoading && !hasError;
 
     useEffect(() => {
@@ -65,9 +66,7 @@ export const Profile = () => {
                 <div className="container max-w-3xl flex justify-between p-4">
                     <img src="/imgs/logo-red.svg" className="w-28 md:w-40" />
                     {auth?.user?.id && (
-                        <div
-                            onClick={logout}
-                            className="p-2 cursor-pointer">
+                        <div onClick={logout} className="p-2 cursor-pointer">
                             Sair
                         </div>
                     )}
@@ -80,10 +79,9 @@ export const Profile = () => {
                         <a href="/dashboard">
                             <Icon name="back" className="w-10" />
                         </a>
-
-                        <h3 className="text-2xl font-bold">
-                            {user.value.name}
-                        </h3>
+                    </div>
+                    <div className="container max-w-3xl space-y-2 p-4">
+                        <h3 className="text-2xl font-bold">{user?.value}</h3>
                     </div>
                 </section>
 
@@ -112,12 +110,10 @@ export const Profile = () => {
                                         "H:mm"
                                     )}
                                     homeTeamScore={
-                                        hunches?.value?.[game.id]
-                                            ?.homeTeamScore || ""
+                                        user?.hunches?.[game.id]?.homeTeamScore
                                     }
                                     awayTeamScore={
-                                        hunches?.value?.[game.id]
-                                            ?.awayTeamScore || ""
+                                        user?.hunches?.[game.id]?.awayTeamScore
                                     }
                                     disabled={true}
                                 />

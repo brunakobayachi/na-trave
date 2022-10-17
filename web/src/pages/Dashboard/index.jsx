@@ -10,20 +10,25 @@ export const Dashboard = () => {
     const [currentDate, setDate] = useState(formatISO(new Date(2022, 10, 20)));
     const [auth] = useLocalStorage("auth", {});
 
-    const [hunches, fetchHunches] = useAsyncFn(async () => {
-        const res = await axios({
-            method: "get",
-            baseURL: import.meta.env.VITE_API_URL,
-            url: `/${auth.user.username}`,
-        });
+    const [{ value: user, loading, error }, fetchHunches] = useAsyncFn(
+        async () => {
+            const res = await axios({
+                method: "get",
+                baseURL: import.meta.env.VITE_API_URL,
+                url: `/${auth.user.username}`,
+            });
 
-        const hunches = res.data.reduce((acc, hunch) => {
-            acc[hunch.gameId] = hunch;
-            return acc;
-        }, {});
+            const hunches = res.data.hunches.reduce((acc, hunch) => {
+                acc[hunch.gameId] = hunch;
+                return acc;
+            }, {});
 
-        return hunches;
-    });
+            return {
+                ...res.data,
+                hunches,
+            };
+        }
+    );
 
     const [games, fetchGames] = useAsyncFn(async params => {
         const res = await axios({
@@ -36,8 +41,8 @@ export const Dashboard = () => {
         return res.data;
     });
 
-    const isLoading = games.loading || hunches.loading;
-    const hasError = games.error || hunches.error;
+    const isLoading = games.loading || loading;
+    const hasError = games.error || error;
     const isDone = !isLoading && !hasError;
 
     useEffect(() => {
@@ -65,7 +70,7 @@ export const Dashboard = () => {
             <main className="space-y-6">
                 <section id="header" className=" bg-red-500 text-white">
                     <div className="container max-w-3xl space-y-2 p-4">
-                        <span>Olá Bruna </span>
+                        <span>{auth.user.name}</span>
                         <h3 className="text-2xl font-bold">
                             Qual é o seu palpite?
                         </h3>
@@ -93,12 +98,10 @@ export const Dashboard = () => {
                                         "H:mm"
                                     )}
                                     homeTeamScore={
-                                        hunches?.value?.[game.id]
-                                            ?.homeTeamScore || ""
+                                        user?.value?.[game.id]?.homeTeamScore
                                     }
                                     awayTeamScore={
-                                        hunches?.value?.[game.id]
-                                            ?.awayTeamScore || ""
+                                        user?.value?.[game.id]?.awayTeamScore
                                     }
                                 />
                             ))}
