@@ -53,8 +53,9 @@ export const create = async ctx => {
             ctx.status = 500;
         }
     } catch (error) {
-        console.log(ctx.request.body)
+        console.log(ctx.request.body);
         ctx.status = 401;
         return;
     }
 };
+
